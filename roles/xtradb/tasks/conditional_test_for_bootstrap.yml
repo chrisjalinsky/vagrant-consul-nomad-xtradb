@@ -1,0 +1,11 @@
+---
+
+- name: Register mock state of cluster
+  shell: "{{ xtradb_mock_state_shell_command }}"
+  ignore_errors: yes
+  register: xtradb_cluster_state
+
+- name: Dynamic cluster state fact based on rc
+  set_fact:
+    xtradb_cluster_bootstrapped: True
+  when: xtradb_cluster_state.rc == 0

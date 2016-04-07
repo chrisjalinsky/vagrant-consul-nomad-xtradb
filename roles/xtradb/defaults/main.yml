@@ -1,0 +1,67 @@
+---
+
+xtradb_from_source: False
+
+xtradb_version: "5.6.28-25.14"
+xtradb_url: "https://www.percona.com/downloads/Percona-XtraDB-Cluster-56/Percona-XtraDB-Cluster-{{ xtradb_version }}/binary/debian/trusty/x86_64/Percona-XtraDB-Cluster-{{ xtradb_version }}-rf9b078d-trusty-x86_64-bundle.tar"
+xtradb_install_path: "/opt/xtradb"
+
+xtradb_apt_package_name: "percona-xtradb-cluster-56"
+xtradb_apt_keyserver: "keys.gnupg.net"
+xtradb_apt_keyserver_id: "1C4CBDCDCD2EFD2A"
+xtradb_apt_repo: "http://repo.percona.com/apt"
+
+xtradb_apt_pin_template_src: "etc/apt/preferences.d/00percona.pref"
+xtradb_apt_pin_template_dest: "/etc/apt/preferences.d/00percona.pref"
+
+#my.cnf template vars
+xtradb_mysqld_datadir: "/var/lib/mysql"
+xtradb_mysqld_user: "mysql"
+xtradb_mysqld_bind_address: "127.0.0.1"
+xtradb_mysqld_innodb_autoinc_lock_mode: "2"
+xtradb_mysqld_default_storage_engine: "InnoDB"
+xtradb_mysqld_binlog_format: "ROW"
+xtradb_mysqld_wsrep_cluster_name: "my_percona_cluster"
+xtradb_mysqld_wsrep_node_address: "127.0.0.1"
+xtradb_mysqld_wsrep_provider: "/usr/lib/libgalera_smm.so"
+xtradb_mysqld_wsrep_sst_auth_user: "sstuser"
+xtradb_mysqld_wsrep_sst_auth_secret: "s3cretPass"
+
+# This failed
+xtradb_mysqld_wsrep_sst_method: "xtrabackup-v2"
+
+# This should be fed into the role, this is going to default to the the hostname this is running on
+xtradb_bootstrap_leader: "{{ inventory_hostname }}"
+
+xtradb_mycnf_template_src: "my.cnf"
+xtradb_mycnf_template_dest: "/etc/mysql/my.cnf"
+
+# current cluster ips should be passed into the role.
+xtradb_cluster_ip_list: []
+xtradb_cluster_bootstrapped: False
+
+xtradb_service_command: "/etc/init.d/mysql"
+xtradb_service_command_start: "{{ xtradb_service_command }} start"
+xtradb_service_command_bootstrap: "{{ xtradb_service_command }} bootstrap-pxc"
+
+# This is how to alter the bootstrapping process.
+# If the following shell command returns an exit code of 0,
+# The cluster is assumed to be ok and then
+# we inject the cluster ip addresses into leader my.cnf template
+# otherwise, we run the pxc-bootstrap process
+
+xtradb_mock_state_shell_command: "exit 1"
+
+xtradb_login_host: "127.0.0.1"
+xtradb_login_user: root
+xtradb_login_port: 3306
+xtradb_login_password: ''
+
+# Create Users
+xtradb_users: []
+#xtradb_users:
+#  - name: "nagios_user"
+#    password: nagios_password
+#    priv: "*.*:ALL"
+#    databases:
+#      - name: "nagiosdb" 

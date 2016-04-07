@@ -1,0 +1,19 @@
+---
+
+- name: Ensure Nomad scripts path
+  file:
+    dest: "{{ nomad_scripts_path }}"
+    state: directory
+
+- name: Template Docker Install Script
+  template:
+    src: "install_docker.sh"
+    dest: "{{ nomad_scripts_path }}/install_docker.sh"
+    mode: "0755"
+
+- name: Run Docker install script
+  shell: "./install_docker.sh"
+  args:
+    executable: "/bin/bash"
+    chdir: "{{ nomad_scripts_path }}"
+    creates: "/usr/bin/docker"

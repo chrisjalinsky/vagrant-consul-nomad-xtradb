@@ -1,0 +1,36 @@
+---
+
+- name: Add XtraDB Apt Repository
+  apt_key:
+    keyserver: "{{ xtradb_apt_keyserver }}"
+    id: "{{ xtradb_apt_keyserver_id }}"
+
+- name: Add Apt deb to sources list
+  apt_repository:
+    repo: "deb {{ xtradb_apt_repo }} trusty main"
+    update_cache: yes
+  
+- name: Add Apt deb-src to sources list
+  apt_repository:
+    repo: "deb-src {{ xtradb_apt_repo }} trusty main"
+    update_cache: yes
+
+- name: Install XtraDB software
+  apt:
+    name: "{{ xtradb_apt_package_name }}"
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Ensure OS PIP python package present for Ansible and mysql communication
+  apt:
+    name: python-mysqldb
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Pin the current version
+  template:
+    src: "{{ xtradb_apt_pin_template_src }}"
+    dest: "{{ xtradb_apt_pin_template_dest }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"

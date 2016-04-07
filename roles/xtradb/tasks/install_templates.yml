@@ -1,0 +1,12 @@
+---
+
+- name: Include conditional test for templating/bootstrapping mysql
+  include: conditional_test_for_bootstrap.yml
+
+- name: Dynamic template for {{ xtradb_mycnf_template_dest }}
+  template:
+    src: "{{ xtradb_mycnf_template_src }}"
+    dest: "{{ xtradb_mycnf_template_dest }}"
+    mode: "0644"
+    backup: yes
+  

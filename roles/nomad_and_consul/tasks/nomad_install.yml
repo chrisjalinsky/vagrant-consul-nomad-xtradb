@@ -1,0 +1,45 @@
+---
+
+- name: Install nomad git repo package to {{ nomad_git_repo_path }}
+  git:
+    dest: "{{ nomad_git_repo_path }}"
+    repo: "{{ nomad_git_repo_url }}"
+    update: no
+
+- name: Install template to {{ nomad_install_script_path }}
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  with_items:
+    - src: "install_nomad.sh"
+      dest: "{{ nomad_install_script_path }}/install_nomad.sh"
+      mode: "0755"
+      owner: "{{ nomad_consul_docker_user }}"
+      group: "{{ nomad_consul_docker_group }}"
+
+- name: Install Nomad Go and Docker and write {{nomad_install_script_path}}/install.out file
+  shell: "./install_nomad.sh >>{{nomad_install_script_path}}/install.out 2>&1"
+  #become_user: "{{ nomad_consul_docker_user }}"
+  register: nomad_installer
+  args:
+    chdir: "{{ nomad_install_script_path }}"
+    creates: "{{nomad_install_script_path}}/install.out"
+
+- name: Read installer out file items
+  shell: "egrep '{{ item }}' {{ nomad_install_script_path }}/install.out"
+  ignore_errors: yes
+  register: tools_installer_read
+  with_items:
+    - "cgroup-lite start/running"
+    - "docker stop/waiting"
+    - "docker start/running, process"
+    - "Installing github.com/tools/godep"
+    - "Installing github.com/mitchellh/gox"
+    - "Installing golang.org/x/tools/cmd/cover"
+    - "Installing golang.org/x/tools/cmd/vet"
+    - "Installing github.com/axw/gocov/gocov"
+    - "Installing gopkg.in/matm/v1/gocov-html"
+    - "Installing github.com/ugorji/go/codec/codecgen"

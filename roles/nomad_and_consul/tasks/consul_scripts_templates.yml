@@ -1,0 +1,8 @@
+---
+
+- name: Ensure Consul Check Templates present in {{ nomad_consul_scripts_path }}
+  template:
+    src: "scripts/{{ item.src }}"
+    dest: "{{ nomad_consul_scripts_path }}/{{ item.src }}"
+    mode: "0775"
+  with_items: "{{ nomad_consul_scripts_templates }}"

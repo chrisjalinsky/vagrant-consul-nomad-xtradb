@@ -1,0 +1,13 @@
+---
+
+- name: Download and unzip nomad exec package
+  unarchive:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    copy: "no"
+    mode: "0775"
+    creates: "{{ item.creates }}"
+  with_items:
+    - src: "{{ nomad_url }}"
+      dest: "{{ nomad_bin_path }}"
+      creates: "{{ nomad_executable }}"

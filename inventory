@@ -1,0 +1,9 @@
+[server_hosts]
+consul[1:3].cluster
+
+[client_hosts]
+client[1:3].cluster
+
+[all:children]
+server_hosts
+client_hosts

@@ -1,0 +1,25 @@
+---
+
+- name: Ensure Consul server paths exist
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+    recurse: "{{ item.recurse | default('yes') }}"
+  with_items:
+    - dest: "{{ nomad_consul_server_conf_path }}"
+    - dest: "{{ nomad_consul_bootstrap_conf_path }}"
+
+- name: Template Consul server files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  with_items: "{{ nomad_consul_server_templates }}"
+
+- name: Ensure Consul Server in desired state
+  service:
+    name: "consul_server"
+    state: "{{ nomad_consul_server_desired_state }}"
+    pattern: "{{nomad_consul_init_path}}/consul_server"

@@ -1,0 +1,34 @@
+---
+
+- name: Ensure meteor install path is present
+  file:
+    dest: "{{ item.dest }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  with_items:
+    - dest: "{{ meteor_install_path }}"
+
+- name: Install meteor
+  shell: "curl https://install.meteor.com/ | sh"
+  args:
+    chdir: "{{ meteor_install_path }}"
+    creates: "{{ meteor_executable }}"
+
+- name: Meteor create app {{ meteor_app }}
+  shell: "meteor create {{ meteor_app }}"
+  args:
+    chdir: "{{ meteor_install_path }}"
+    creates: "{{ meteor_install_path }}/{{ meteor_app }}/package.json"
+
+- name: Meteor Templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest  }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  with_items:
+    - src: "etc/init/meteor_app.conf"
+      dest: "/etc/init/meteor_app.conf"
+

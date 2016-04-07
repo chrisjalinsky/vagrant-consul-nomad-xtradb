@@ -1,0 +1,38 @@
+---
+
+- name: Ensure Consul client paths exist
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+    recurse: "{{ item.recurse | default('yes') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  with_items:
+    - dest: "{{ nomad_consul_client_conf_path }}"
+
+- name: Add python-pip for pytz package
+  apt:
+    name: "{{ item.name }}"
+  with_items:
+    - name: "python-pip"
+
+- name: Add pytz for json data check
+  pip:
+    name: "{{ item.name }}"
+  with_items:
+    - name: "pytz"
+
+- name: Template Consul client files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  with_items: "{{ nomad_consul_client_templates }}"
+
+- name: Ensure Consul Client in desired state
+  service:
+    name: "consul_client"
+    state: "{{ nomad_consul_client_desired_state }}"
+    pattern: "{{nomad_consul_init_path}}/consul_client"

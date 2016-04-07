@@ -1,0 +1,25 @@
+---
+
+- name: Download and unzip consul exec package
+  unarchive:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    copy: "no"
+    mode: "0775"
+    creates: "{{ item.creates }}"
+  with_items:
+    - src: "{{ nomad_consul_url }}"
+      dest: "{{ nomad_consul_bin_path }}"
+      creates: "{{ nomad_consul_executable }}"
+
+- name: Download and unzip web ui package
+  unarchive:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    copy: "no"
+    creates: "{{ item.creates }}"
+  with_items:
+    - src: "{{ nomad_consul_web_ui_url }}"
+      dest: "{{ nomad_consul_web_ui_dest }}"
+      creates: "{{ nomad_consul_web_ui_dest }}/index.html"
+  when: nomad_consul_server

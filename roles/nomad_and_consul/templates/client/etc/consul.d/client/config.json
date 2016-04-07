@@ -1,0 +1,58 @@
+{
+  "server": false,
+  "bind_addr": "{{ nomad_consul_client_bind_address }}",
+  "datacenter": "{{ nomad_consul_client_datacenter }}",
+  "data_dir": "{{ nomad_consul_data_dir }}",
+  "log_level": "{{ nomad_consul_client_log_level }}",
+  "enable_syslog": true,
+  "start_join": {{ hostvars | server_group_ip_map_v2(nomad_consul_client_server_list, nomad_consul_client_bind_iface) | to_json }},
+  "services": [
+		{
+			"id": "json0",
+			"name": "checkjsondata",
+			"tags": [
+				"master"
+			],
+			"address": "127.0.0.1",
+			"port": 80,
+			"checks": [
+				{
+					"script": "{{ nomad_consul_scripts_path }}/check_json_data.py -H 172.136.9.56 -p 8500 -u v1/catalog/nodes -S Address",
+					"interval": "10s",
+					"status": "failing"
+				}
+			]
+		},{
+			"id": "xtradb0",
+			"name": "xtradb",
+			"tags": [
+				"xtradb"
+			],
+			"address": "127.0.0.1",
+			"port": 3306,
+			"checks": [
+				{
+					"script": "{{ nomad_consul_scripts_path }}/check_galera_cluster -H 127.0.0.1 -u nagios_user -p nagios_password",
+					"interval": "10s",
+					"status": "failing"
+				}
+			]
+		},{
+			"id": "xtradb1",
+			"name": "pyclustercheck",
+			"tags": [
+				"xtradb"
+			],
+			"address": "127.0.0.1",
+			"port": 8000
+		},{
+			"id": "meteor0",
+			"name": "meteor_alive",
+			"tags": [
+				"meteor"
+			],
+			"address": "127.0.0.1",
+			"port": 3000
+		}
+  ]
+}

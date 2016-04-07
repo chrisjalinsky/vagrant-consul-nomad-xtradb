@@ -1,0 +1,13 @@
+---
+
+- name: Ensure install path {{ xtradb_install_path }} present
+  file:
+    dest: "{{ xtradb_install_path }}"
+    state: directory
+  when: xtradb_from_source
+
+- name: Download and Extract XtraDB to {{ xtradb_install_path }}
+  unarchive:
+    url: "{{ xtradb_url }}"
+    dest: "{{ xtradb_install_path }}"
+  when: xtradb_from_source

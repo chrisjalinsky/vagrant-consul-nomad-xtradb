@@ -1,0 +1,155 @@
+---
+
+- name: Install user for nomad consul and docker
+  hosts: all
+  become: yes
+  become_user: root
+  pre_tasks:
+    - name: Testing plugin_filters
+      set_fact:
+        consul_other_servers: "{{ hostvars | server_group_filter_v2(groups['server_hosts'], inventory_hostname, 'ansible_eth1') | to_json }}"
+        consul_ips: "{{ hostvars | server_group_filter_v2(groups['server_hosts'], inventory_hostname, 'ansible_eth1') | to_json }}"
+        consul_server_ips: "{{ hostvars | server_group_ip_map_v2(groups['server_hosts'], 'ansible_eth1') | to_json }}"
+  roles:
+    - role: hostsfile
+      hostsfile_group_key: "all"
+    - role: user_role
+      user_role_users:
+        - name: "consul"
+          shell: "/bin/bash"
+          groups:
+            - "consul"
+          append: "yes"
+          generate_ssh_keys: "yes"
+          ssh_key_bits: "4096"
+          authorized:
+            - "vars/keys/id_rsa.pub"
+          password: 12345
+          system: "yes"
+
+- name: Install nomad and consul on server hosts
+  hosts: server_hosts
+  become: yes
+  become_user: root
+  roles:
+    - role: nomad_and_consul
+      nomad_consul_version: "0.6.4"
+      nomad_rkt_version: "1.2.1"
+      nomad_consul_docker_user: "root"
+      nomad_consul_docker_group: "root"
+      nomad_install_script_path: "/opt/nomad"
+      nomad_consul_server: True
+      nomad_consul_server_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      nomad_consul_server_bind_iface: "ansible_eth1"
+      nomad_consul_server_http_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      nomad_consul_server_datacenter: "int1"
+      nomad_consul_server_desired_state: "restarted"
+      nomad_server: True
+      nomad_server_list: "{{ groups['server_hosts'] | list }}"
+      nomad_server_templates:
+        - src: "server/etc/nomad/server.hcl"
+          dest: "/etc/nomad/server.hcl"
+      nomad_server_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      nomad_server_bind_iface: "ansible_eth1"
+      nomad_server_desired_state: "restarted"
+      nomad_jobs_templates:
+        - src: "example.hcl"
+      nomad_rkt_netd_conf:
+        name: "default"
+        type: "ptp"
+        ipMasq: "false"
+        ipam:
+          - type: "host-local"
+            subnet:
+              - "172.16.1.0/24"
+            routes:
+              - "dst":
+                  - "0.0.0.0/0"
+      nomad_consul_server_list: "{{ groups['server_hosts'] | list }}"
+      nomad_consul_server_templates:
+        - src: "server/etc/consul.d/server/config.json"
+          dest: "/etc/consul.d/server/config.json"
+        - src: "server/etc/init/consul_server.conf"
+          dest: "/etc/init/consul_server.conf"
+
+- name: Install nomad docker and consul on client hosts
+  hosts: client_hosts
+  become: yes
+  become_user: root
+  roles:
+    - role: nomad_and_consul
+      nomad_consul_version: "0.6.4"
+      nomad_rkt_version: "1.2.1"
+      nomad_consul_docker_user: "root"
+      nomad_consul_docker_group: "root"
+      nomad_install_script_path: "/opt/nomad"
+      nomad_consul_scripts_templates:
+        - src: "check_json_data.py"
+        - src: "check_galera_cluster"
+        - src: "pyclustercheck.py"
+      nomad_client_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      nomad_client_bind_iface: "ansible_eth1"
+      nomad_consul_server: False
+      nomad_rkt_netd_conf:
+        name: "default"
+        type: "ptp"
+        ipMasq: "false"
+        ipam:
+          - type: "host-local"
+            subnet:
+              - "172.16.1.0/24"
+            routes:
+              - "dst":
+                  - "0.0.0.0/0"
+      nomad_consul_client_server_list: "{{ groups['server_hosts'] | list }}"
+      nomad_consul_client_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      nomad_consul_client_bind_iface: "ansible_eth1"
+      nomad_consul_client_datacenter: "int1"
+      nomad_consul_client_desired_state: "restarted"
+      nomad_consul_client_templates:
+        - src: "client/etc/consul.d/client/config.json"
+          dest: "/etc/consul.d/client/config.json"
+        - src: "client/etc/init/consul_client.conf"
+          dest: "/etc/init/consul_client.conf"
+      nomad_server: False
+      nomad_server_list: "{{ groups['server_hosts'] | list }}"
+      nomad_client_desired_state: "restarted"
+      nomad_client_templates:
+        - src: "client/etc/nomad/client.hcl"
+          dest: "/etc/nomad/client.hcl"
+
+- name: Install meteor app on client hosts
+  hosts: client_hosts
+  become: yes
+  become_user: root
+  roles:
+    - role: meteor
+      meteor_user: "root"
+      meteor_group: "root"
+      meteor_executable: "/usr/local/bin/meteor"
+
+- name: Install XtraDB on client hosts
+  hosts: client_hosts
+  become: yes
+  become_user: root
+  serial: 1
+  roles:
+    - role: xtradb
+      xtradb_cluster_ip_list: "{{ hostvars | server_group_ip_map_v2(groups['client_hosts'], 'ansible_eth1') | list }}"
+      xtradb_mysqld_wsrep_cluster_name: "ad1"
+      xtradb_mysqld_wsrep_node_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+      xtradb_mock_state_shell_command: "exit 1"
+      xtradb_bootstrap_leader: "{{ groups['client_hosts'][0] }}"
+      xtradb_users:
+        - name: "nagios_user"
+          password: nagios_password
+          privileges: "*.*:ALL"
+          databases:
+            - name: "nagiosdb"
+              state: present
+        - name: sstuser
+          password: s3cretPass
+          priv: "*.*:RELOAD,LOCK TABLES,REPLICATION CLIENT,GRANT"
+      xtradb_mysqld_wsrep_sst_auth_user: sstuser
+      xtradb_mysqld_wsrep_sst_auth_secret: s3cretPass
+      tags: [xtradb]

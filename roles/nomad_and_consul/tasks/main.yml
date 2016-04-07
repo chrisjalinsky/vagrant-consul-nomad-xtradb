@@ -1,0 +1,37 @@
+---
+
+- include: common.yml
+
+- include: consul_install.yml
+
+- include: consul_scripts_templates.yml
+
+- include: consul_server.yml
+  when: nomad_consul_server
+
+- include: consul_client.yml
+  when: not nomad_consul_server
+
+- include: rkt_install.yml
+  when: nomad_rkt_install
+
+- include: docker_install.yml
+  when: nomad_docker_install
+
+- include: go_install.yml
+  when: nomad_go_install
+
+- include: nomad_install.yml
+  when: nomad_install_source
+
+- include: nomad_package.yml
+  when: not nomad_install_source
+
+- include: nomad_server.yml
+  when: nomad_server
+
+- include: nomad_jobs_templates.yml
+  when: nomad_jobs_templates|length > 0
+
+- include: nomad_client.yml
+  when: not nomad_server

@@ -1,0 +1,34 @@
+---
+
+- name: Ensure if not bootstrapped, mysql should be stopped
+  when: not xtradb_cluster_bootstrapped
+  service:
+    name: mysql
+    state: stopped
+    pattern: "{{ xtradb_service_command }}"
+
+#- name: "Running bootstrap: {{ xtradb_service_command_bootstrap }}"
+#  when: xtradb_cluster_bootstrapped is defined and not(xtradb_cluster_bootstrapped|bool) and (inventory_hostname == xtradb_bootstrap_leader)
+#  shell: "{{ xtradb_service_command_bootstrap }}"
+
+#- name: "Running Start: {{ xtradb_service_command_start }}"
+#  when: xtradb_cluster_bootstrapped is defined and not(xtradb_cluster_bootstrapped|bool) and (inventory_hostname != xtradb_bootstrap_leader)
+#  shell: "{{ xtradb_service_command_start }}"
+
+- name: Ensure state of system
+  when: xtradb_cluster_bootstrapped
+  service:
+    name: mysql
+    state: started
+    pattern: "{{ xtradb_service_command }}"
+
+- name: Ensure state of system based on xtradb_cluster_bootstrapped var and not leader
+  when: not xtradb_cluster_bootstrapped and (inventory_hostname != xtradb_bootstrap_leader)
+  service:
+    name: mysql
+    state: started
+    pattern: "{{ xtradb_service_command }}"
+
+- name: Ensure state of system based on xtradb_cluster_bootstrapped var and is leader
+  when: not xtradb_cluster_bootstrapped and (inventory_hostname == xtradb_bootstrap_leader)
+  shell: "{{ xtradb_service_command_bootstrap }}"

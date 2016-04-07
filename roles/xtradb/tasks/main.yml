@@ -1,0 +1,24 @@
+---
+
+- name: Query dpkg for previous Percona software
+  shell: "dpkg-query -W | grep percona"
+  register: xtradb_prev_packages
+  failed_when: false
+
+- name: Read output of Percona check
+  debug:
+    var: xtradb_prev_packages
+
+- include: install_source.yml
+  when: xtradb_from_source
+
+- include: install_apt.yml
+  when: not xtradb_from_source
+
+- include: install_templates.yml
+
+- include: install_users.yml
+
+- include: install_dbs.yml
+
+- include: execute_state.yml

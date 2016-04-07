@@ -1,0 +1,11 @@
+---
+
+meteor_user: "root"
+meteor_group: "root"
+meteor_bin_path: "/usr/local/bin"
+meteor_executable: "{{ meteor_bin_path }}/meteor"
+meteor_interface: "lo"
+meteor_port: "3000"
+
+meteor_install_path: "/opt/meteor"
+meteor_app: "socially"

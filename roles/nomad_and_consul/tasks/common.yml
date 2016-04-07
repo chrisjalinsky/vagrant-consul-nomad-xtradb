@@ -1,0 +1,26 @@
+---
+
+- name: Ensure common paths exist
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+    recurse: "{{ item.recurse | default('yes') }}"
+  with_items:
+    - dest: "{{ nomad_install_script_path }}"
+    - dest: "{{ nomad_init_path }}"
+    - dest: "{{ nomad_conf_path }}"
+    - dest: "{{ nomad_git_repo_path }}"
+    - dest: "{{ nomad_consul_install_path }}"
+    - dest: "{{ nomad_consul_scripts_path }}"
+    - dest: "{{ nomad_consul_data_dir }}"
+    - dest: "{{ nomad_consul_init_path }}"
+    - dest: "{{ nomad_consul_conf_path }}"
+    - dest: "{{ nomad_consul_pkg_dest }}"
+    - dest: "{{ nomad_hcl_templates_path }}"
+
+- name: Install apt dependencies
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: "3600"
+  with_items: "{{ nomad_apt_dependencies }}"

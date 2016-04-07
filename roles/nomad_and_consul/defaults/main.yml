@@ -1,0 +1,153 @@
+---
+
+nomad_consul_docker_user: "vagrant"
+nomad_consul_docker_group: "vagrant"
+nomad_consul_version: "0.6.4"
+nomad_consul_url: "https://releases.hashicorp.com/consul/{{ nomad_consul_version }}/consul_{{ nomad_consul_version }}_linux_amd64.zip"
+nomad_consul_web_ui_url: "https://releases.hashicorp.com/consul/{{ nomad_consul_version }}/consul_{{ nomad_consul_version }}_web_ui.zip"
+
+nomad_consul_server: True
+
+nomad_consul_init_path: "/etc/init"
+nomad_consul_conf_path: "/etc/consul.d"
+nomad_consul_server_conf_path: "{{ nomad_consul_conf_path }}/server"
+nomad_consul_bootstrap_conf_path: "{{ nomad_consul_conf_path }}/bootstrap"
+nomad_consul_client_conf_path: "{{ nomad_consul_conf_path }}/client"
+
+nomad_consul_install_path: "/opt/consul"
+nomad_consul_scripts_path: "{{ nomad_consul_install_path }}/scripts"
+nomad_consul_scripts_templates: []
+
+nomad_consul_web_ui_dest: "{{ nomad_consul_install_path }}"
+nomad_consul_data_dir: "{{ nomad_consul_install_path }}/data"
+nomad_consul_pkg_dest: "{{ nomad_consul_install_path }}/consul-v{{ nomad_consul_version }}"
+nomad_consul_pkg_executable: "{{ nomad_consul_pkg_dest }}/consul"
+nomad_consul_bin_path: "/usr/bin"
+nomad_consul_executable: "{{ nomad_consul_bin_path }}/consul"
+
+nomad_consul_server_desired_state: "started"
+nomad_consul_server_bind_address: "0.0.0.0"
+nomad_consul_server_bind_iface: "eth0"
+nomad_consul_server_http_address: "0.0.0.0"
+nomad_consul_server_datacenter: "int1"
+nomad_consul_server_log_level: "DEBUG"
+
+nomad_consul_server_list: []
+nomad_consul_server_templates: []
+#nomad_consul_server_templates:
+#  - src: "server/etc/consul.d/server/config.json"
+#    dest: "/etc/consul.d/server/config.json"
+#    vars: {
+#      "bootstrap": false,
+#      "server": true,
+#      "datacenter": "int1",
+#      "data_dir": "/opt/consul",
+#      "encrypt": "CMAh2A46Py5FmBuPd5hizg==",
+#      "log_level": "DEBUG",
+#      "enable_syslog": true,
+#      "addresses" : {
+#          "http" : "{{ hostvars[inventory_hostname].ansible_eth0.ipv4.address }}",
+#          "https" : "{{ hostvars[inventory_hostname].ansible_eth0.ipv4.address }}",
+#      },
+#      "ui_dir" : "/opt/consul/web",
+#      "start_join" : "{{ server_group_filter(groups['server_hosts'],inventory_hostname,hostvars[inventory_hostname]) | default([]) }}"
+#    }
+
+nomad_consul_client_server_list: []
+nomad_consul_client_desired_state: "started"
+nomad_consul_client_bind_address: "0.0.0.0"
+nomad_consul_client_bind_iface: "eth0"
+nomad_consul_client_datacenter: "int1"
+nomad_consul_client_log_level: "DEBUG"
+nomad_consul_client_templates: []
+#nomad_consul_client_templates:
+#  - src: "client/etc/consul.d/client/config.json"
+#    dest: "/etc/consul.d/client/config.json"
+#    vars: {
+#      "server": false,
+#      "datacenter": "int1",
+#      "data_dir": "/opt/consul",
+#      "encrypt": "CMAh2A46Py5FmBuPd5hizg==",
+#      "log_level": "DEBUG",
+#      "enable_syslog": true,
+#      "start_join": "{{ groups['server_hosts'] }}"
+#    }
+
+nomad_server: True
+
+nomad_install_source: False
+nomad_version: "0.3.1"
+nomad_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_amd64.zip"
+nomad_install_path: "/opt/nomad"
+nomad_install_script_path: "{{ nomad_install_path }}/scripts"
+
+nomad_init_path: "/etc/init"
+nomad_conf_path: "/etc/nomad"
+nomad_scripts_path: "{{ nomad_conf_path }}/scripts"
+
+nomad_bin_path: "/usr/bin"
+nomad_executable: "{{ nomad_bin_path }}/nomad"
+
+nomad_server_list: []
+
+nomad_server_templates: []
+nomad_server_desired_state: "started"
+nomad_server_bind_address: "0.0.0.0"
+nomad_server_bind_iface: "eth0"
+
+nomad_client_templates: []
+nomad_client_desired_state: "started"
+nomad_client_bind_address: "0.0.0.0"
+nomad_client_bind_iface: "eth0"
+
+nomad_jobs_path: "{{ nomad_conf_path }}/jobs"
+nomad_jobs_templates: []
+
+
+nomad_apt_dependencies:
+  - build-essential
+  - curl
+  - git-core
+  - mercurial
+  - bzr
+  - libpcre3-dev
+  - pkg-config
+  - zip
+  - default-jre
+  - qemu
+  - libc6-dev-i386
+  - silversearcher-ag
+  - jq
+  - htop
+  - vim
+  - unzip
+
+nomad_git_repo_path: "{{ nomad_install_path }}/github.com"
+nomad_git_repo_url: "https://github.com/hashicorp/nomad"
+
+nomad_rkt_install: False
+nomad_docker_install: False
+nomad_go_install: False
+nomad_rkt_version: "1.2.0"
+nomad_rkt_pkg_url: "https://github.com/coreos/rkt/releases/download/v{{ nomad_rkt_version }}/rkt-v{{ nomad_rkt_version }}.tar.gz"
+nomad_rkt_pkg_dest: "{{ nomad_install_path }}"
+nomad_rkt_pkg_executable: "{{ nomad_install_path }}/rkt-v{{ nomad_rkt_version }}/rkt"
+nomad_rkt_bin_path: "/usr/local/bin"
+nomad_rkt_executable: "{{ nomad_rkt_bin_path }}/rkt"
+nomad_rkt_netd_path: "/etc/rkt/net.d"
+nomad_rkt_netd_conf:
+  name: "default"
+  type: "ptp"
+  ipMasq: "false"
+  ipam:
+    - type: "host-local"
+      subnet:
+        - "127.0.0.1/8"
+      routes:
+        - "dst":
+            - "0.0.0.0/0"
+
+nomad_hcl_templates_path: "{{ nomad_install_path }}/templates"
+nomad_hcl_templates:
+  - src: "server.hcl"
+  - src: "client.hcl"

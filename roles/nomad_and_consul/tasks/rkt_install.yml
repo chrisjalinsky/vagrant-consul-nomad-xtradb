@@ -1,0 +1,52 @@
+---
+
+- name: Ensure rkt paths exist
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+    recurse: "{{ item.recurse | default('yes') }}"
+  with_items:
+    - dest: "{{ nomad_rkt_netd_path }}"
+
+- name: Download and unzip rkt package
+  unarchive:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    copy: "no"
+    creates: "{{ item.creates }}"
+  with_items:
+    - src: "{{ nomad_rkt_pkg_url }}"
+      dest: "{{ nomad_rkt_pkg_dest }}"
+      creates: "{{ nomad_rkt_pkg_executable }}"
+
+- name: Copy rkt executable to bin path
+  copy:
+    src: "{{ nomad_rkt_pkg_executable }}"
+    dest: "{{ nomad_rkt_executable }}"
+    mode: "0777"
+    remote_src: "yes"
+
+- name: Copy rkt bin files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ nomad_rkt_bin_path }}/"
+    mode: "0644"
+  with_fileglob:
+    - "{{ nomad_rkt_pkg_dest }}/*.aci"
+
+- name: Test rkt version
+  shell: "rkt version"
+
+- name: Rkt Templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  with_items:
+    - src: "99-network.conf"
+      dest: "{{ nomad_rkt_netd_path }}/99-network.conf"
+      mode: "0644"
+      owner: "root"
+      group: "root"

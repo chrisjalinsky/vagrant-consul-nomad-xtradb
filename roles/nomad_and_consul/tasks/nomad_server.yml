@@ -1,0 +1,20 @@
+---
+
+- name: Install nomad server templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    backup: yes
+  with_items: "{{ nomad_server_templates }}"
+
+- name: Install nomad server init template to {{ nomad_init_path }}
+  template:
+    src: "server/etc/init/nomad_server.conf"
+    dest: "{{ nomad_init_path }}/nomad_server.conf"
+    backup: no
+
+- name: Ensure Nomad server in desired state
+  service:
+    name: "nomad_server"
+    state: "{{ nomad_server_desired_state }}"
+    pattern: "{{ nomad_init_path }}/nomad_server"

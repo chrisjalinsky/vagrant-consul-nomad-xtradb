@@ -1,0 +1,14 @@
+---
+
+- name: Install mysql users
+  mysql_user:
+    login_host: "{{ xtradb_login_host | default('127.0.0.1') }}"
+    login_user: "{{ xtradb_login_user }}"
+    login_password: "{{ xtradb_login_password }}"
+    login_port: "{{ xtradb_login_port | default('3306') }}"
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ xtradb_users }}"

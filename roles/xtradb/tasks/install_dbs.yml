@@ -1,0 +1,15 @@
+---
+
+- name: Create DBs for users
+  mysql_db:
+    login_host: "{{ xtradb_login_host | default('127.0.0.1') }}"
+    login_user: "{{ xtradb_login_user }}"
+    login_password: "{{ xtradb_login_password }}"
+    login_port: "{{ xtradb_login_port | default('3306') }}"
+    name: "{{ item.1.name }}"
+    state: "{{ item.1.state | default('present') }}"
+  with_subelements:
+    - "{{ xtradb_users }}"
+    - "databases"
+    - flags:
+      skip_missing: True

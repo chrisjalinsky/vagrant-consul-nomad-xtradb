@@ -1,0 +1,19 @@
+---
+
+- name: Ensure nomad scripts path
+  file:
+    dest: "{{ nomad_scripts_path }}"
+    state: directory
+
+- name: Template Go Install Script
+  template:
+    src: "install_go.sh"
+    dest: "{{ nomad_scripts_path }}/install_go.sh"
+    mode: "0755"
+
+- name: Run Go install script
+  shell: "./install_go.sh"
+  args:
+    executable: "/bin/bash"
+    chdir: "{{ nomad_scripts_path }}"
+    creates: "/etc/profile.d/gopath.sh"

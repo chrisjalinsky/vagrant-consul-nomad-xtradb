@@ -1,0 +1,13 @@
+---
+
+- name: Ensure jobs path present
+  file:
+    name: "{{ nomad_jobs_path }}"
+    state: directory
+
+- name: Ensure Jobs Templates present in {{ nomad_jobs_path }}
+  template:
+    src: "jobs/{{ item.src }}"
+    dest: "{{ nomad_jobs_path }}/{{ item.src }}"
+    mode: "0775"
+  with_items: "{{ nomad_jobs_templates }}"
