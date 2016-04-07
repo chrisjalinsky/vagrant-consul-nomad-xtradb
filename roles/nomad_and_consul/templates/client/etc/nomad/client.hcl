@@ -1,6 +1,6 @@
-data_dir = "/var/lib/nomad"
-region = "galaxy"
-datacenter = "solarsystem"
+data_dir = "{{ nomad_consul_server_datadir }}"
+region = "{{ nomad_consul_client_region }}"
+datacenter = "{{ nomad_consul_client_datacenter }}"
 
 client {
   enabled = true

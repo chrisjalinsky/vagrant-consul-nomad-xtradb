@@ -29,7 +29,9 @@ nomad_consul_server_desired_state: "started"
 nomad_consul_server_bind_address: "0.0.0.0"
 nomad_consul_server_bind_iface: "eth0"
 nomad_consul_server_http_address: "0.0.0.0"
-nomad_consul_server_datacenter: "int1"
+nomad_consul_server_region: "galaxy"
+nomad_consul_server_datacenter: "solarsystem"
+nomad_consul_server_datadir: "/var/lib/nomad"
 nomad_consul_server_log_level: "DEBUG"
 
 nomad_consul_server_list: []
@@ -57,7 +59,9 @@ nomad_consul_client_server_list: []
 nomad_consul_client_desired_state: "started"
 nomad_consul_client_bind_address: "0.0.0.0"
 nomad_consul_client_bind_iface: "eth0"
-nomad_consul_client_datacenter: "int1"
+nomad_consul_client_region: "galaxy"
+nomad_consul_client_datacenter: "solarsystem"
+nomad_consul_client_datadir: "/var/lib/nomad"
 nomad_consul_client_log_level: "DEBUG"
 nomad_consul_client_templates: []
 #nomad_consul_client_templates:

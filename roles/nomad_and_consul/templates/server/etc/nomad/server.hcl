@@ -1,7 +1,7 @@
 bind_addr = "{{ nomad_server_bind_address }}"
-data_dir = "/var/lib/nomad"
-region = "mountain"
-datacenter = "int1"
+data_dir = "{{ nomad_consul_server_datadir }}"
+region = "{{ nomad_consul_server_region }}"
+datacenter = "{{ nomad_consul_server_datacenter }}"
 
 advertise {
   # We need to specify our host's IP because we can't

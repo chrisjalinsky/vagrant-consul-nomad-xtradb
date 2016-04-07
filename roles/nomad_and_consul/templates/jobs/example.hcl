@@ -1,10 +1,10 @@
 # Define a job called my-service
 job "my-service" {
     # Job should run in the US region
-    region = "mountain"
+    region = "galaxy"
 
     # Spread tasks between us-west-1 and us-east-1
-    datacenters = ["int1"]
+    datacenters = ["solarsystem"]
 
     # run this job globally
     type = "system"

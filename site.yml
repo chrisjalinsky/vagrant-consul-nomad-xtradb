@@ -42,7 +42,9 @@
       nomad_consul_server_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
       nomad_consul_server_bind_iface: "ansible_eth1"
       nomad_consul_server_http_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
-      nomad_consul_server_datacenter: "int1"
+      nomad_consul_server_region: "galaxy"
+      nomad_consul_server_datacenter: "solarsystem"
+      nomad_consul_server_datadir: "/var/lib/nomad"
       nomad_consul_server_desired_state: "restarted"
       nomad_server: True
       nomad_server_list: "{{ groups['server_hosts'] | list }}"
@@ -54,6 +56,7 @@
       nomad_server_desired_state: "restarted"
       nomad_jobs_templates:
         - src: "example.hcl"
+        - src: "solar-nginx.hcl"
       nomad_rkt_netd_conf:
         name: "default"
         type: "ptp"
@@ -104,7 +107,9 @@
       nomad_consul_client_server_list: "{{ groups['server_hosts'] | list }}"
       nomad_consul_client_bind_address: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
       nomad_consul_client_bind_iface: "ansible_eth1"
-      nomad_consul_client_datacenter: "int1"
+      nomad_consul_client_region: "galaxy"
+      nomad_consul_client_datacenter: "solarsystem"
+      nomad_consul_client_datadir: "/var/lib/nomad"
       nomad_consul_client_desired_state: "restarted"
       nomad_consul_client_templates:
         - src: "client/etc/consul.d/client/config.json"
