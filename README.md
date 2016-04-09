@@ -406,7 +406,7 @@ Todo:
 =====
 
 * Convert Go install to idempotent role
-* Integrate a Docker Registry LDAP Role [https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb](https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb)
+* Integrate a Docker Registry Cluster Role [https://github.com/chrisjalinsky/docker-registry-cluster](https://github.com/chrisjalinsky/docker-registry-cluster)
 * Add Docker Nomad Jobs
 * Add Nomad Exec and Raw Exec Jobs
 * Add Rkt Nomad Jobs
