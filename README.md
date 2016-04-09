@@ -1,8 +1,10 @@
 Consul Nomad Cluster
 ====================
 
-This repo is a lab environment to test Consul and Nomad. Also included are roles to spin up a XtraDB cluster and MeteorJS apps.
-The provisioning is managed by Ansible. This lab has been tested on both Linux Ubuntu Trusty64 KVM Virtualization and Mac OSX Virtualbox Virtualization.
+This repo is a lab environment to test Consul and Nomad. Keep in mind, no security measurements have been taken, it's purely for lab work.
+
+The provisioning is managed by Ansible. This lab has been working for me on both Linux Ubuntu Trusty64 KVM Virtualization and Mac OSX Virtualbox Virtualization.
+Included are Ansible roles to spin up a XtraDB cluster and MeteorJS apps, just to have something to start with.
 
 Here are the dependencies for the host systems used:
 
@@ -21,15 +23,69 @@ Linux Ubuntu 14.04 LTS
 * vagrant 1.8.1
 * kvm
 
+Vagrant Libvirt and KVM
+-----------------------
+
+Apt Package dependencies for Libvirt and KVM on the host machine:
+```
+apt-get install libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev qemu-kvm libvirt-bin bridge-utils virt-manager qemu-system
+```
+
 If you have a trusty64 Ubuntu 14.04 vagrant box for libvirt or kvm, you can probably use it. I didn't have one, so I vagrant mutated the "ubuntu/trusty64" box using this project:
 ```
 https://github.com/sciurus/vagrant-mutate
 ```
 
+Here's how to mutate the "ubuntu/trusty64" standard box. Download the Vagrant installer deb package.
+```
+dpkg -i vagrant_1.8.1_x86_64.deb
+```
+
+It turns out at the time, I didn't have the libvirt-dev package installed on the host machine for the vagrant-libvirt plugin. It's included in the host's apt dependencies above:
+```
+apt-get -y install libvirt-dev # I Didn't have this package
+vagrant plugin install vagrant-libvirt
+```
+Now the installation works with the libvirt-dev package in place.
+```
+vagrant plugin install vagrant-mutate
+```
+I needed a vagrant box, so I downloaded and named it "trusty64":
+```
+vagrant box add trusty64 https://vagrantcloud.com/ubuntu/boxes/trusty64/versions/14.04/providers/virtualbox.box
+```
+
+And then mutated trusty64 for libvirt:
+```
+vagrant mutate trusty64 libvirt
+```
+
+For some reason, the vagrant-libvirt installation complained, and I read a Git issue which solved the installation problem by reinstalling the Fog library Vagrant plugin with a specific version - fog-libvirt (https://github.com/fog/fog-libvirt)[https://github.com/fog/fog-libvirt] I need to update this doc with the source.
+
+```
+vagrant plugin install --plugin-version 0.0.3 fog-libvirt
+```
+
+I quickly checked the qemu user existed and the libvirt connection with these commands:
+
+```
+cat /etc/group
+cat /etc/passwd
+virsh -c qemu:///system list
+virsh list --all
+```
+
+
 Vagrant
 -------
 
-The Vagrantfile has been made to be scalable. In theory, just adjusting the NUM_XXX will be enough to create as many VMs as you can handle. Well, the IP generation would need to be adjusted.
+The Vagrantfile has been made to be scalable to a certain degree. In theory, just adjusting the NUM_XXX will be enough to create as many VMs as the IP generation would allow in the Vagrantfile...so dozens at the moment. Currently, it's setup with 3 consul servers and 3 consul clients, as described in Ansible terms below.
+
+```
+consul[1:3].cluster
+client[1:3].cluster
+```
+
 
 Getting started:
 ================
@@ -40,14 +96,39 @@ Spin up the 6 node cluster, in two steps to prevent a race condition between the
 vagrant up --no-provision
 vagrant provision
 ```
+
+The ```vagrant up --no-provision``` command will create 6 nodes. The ```vagrant provision``` will run the Ansible playbook. See details below.
+
+
+Ansible
+=======
+
+I used the standard Ansible installation method, and I'm using defaults. I didn't create an ansible.cfg to place ssh key locations or inventory dirs. I'm using the playbook dir as the base path.
+
+Install PIP if you dont have it, or follow a different Ansible installation:
+
+```
+apt-get install -y python-pip
+```
+
+```
+pip install --upgrade
+apt-get install software-properties-common
+apt-add-repository ppa:ansible/ansible
+apt-get update
+apt-get install ansible
+ansible --version
+```
+
 Ansible Playbook
 ================
 
-This style breaks the Ansible best practices, but it's easier for me to see all the arguments provided to the role. Yes there are some variables that should be set in production and kept in a vault, but this is a lab for spinning up infrastructure. 
+IMHO, this playbook kind of breaks Ansible best practices, but it's easier for me to see all the arguments provided to the role. Yes, there are some variables that should be set in production and kept in a vault, but this is a lab for spinning up infrastructure. I'm not planning on building inventory files, since vagrant is dynamically handling that. I create an inventory file, but Vagrant doesn't use it. In a production setting, you would want to create a priveleged user to manage these ssh connections.
 
-This creates a 3 node Consul/Nomad server cluster and a 3 node Consul/Nomad client cluster.
+This playbook creates a 3 node Consul/Nomad server cluster and a 3 node Consul/Nomad client cluster.
 
-Upstart Init scripts have been created to manage the following consul and nomad agent command execution. These init scripts are simple, and have conditions that depend on the 'ansible_eth1' interface to be up. 
+Upstart Init scripts have been created to manage the following consul and nomad agent command execution. These init scripts are simple, and have conditions that depend on the 'ansible_eth1' interface to be available. 
+
 
 On clients:
 -----------
@@ -68,7 +149,7 @@ Manual Consul Agent Reference
 -----------------------------
 
 Reference:
-If running the commands manually, you can bootstrap a cluster like so (Running one with a ui on localhost):
+If running the commands manually, you can bootstrap a cluster like so (with the Consul UI available on each host):
 
 On each node run it's respective consul agent command
 ```
@@ -321,10 +402,11 @@ Todo:
 =====
 
 * Convert Go install to idempotent role
-* Convert Docker install to idempotent role
+* Integrate a Docker Registry LDAP Role (https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb)[https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb]
 * Add Docker Nomad Jobs
 * Add Nomad Exec and Raw Exec Jobs
 * Add Rkt Nomad Jobs
 * Get the new user generated to own the consul and nomad processes
+* More docs
 
 Any help or advice or suggestions are welcome.
