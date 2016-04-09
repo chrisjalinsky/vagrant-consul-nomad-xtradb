@@ -36,7 +36,7 @@ If you have a trusty64 Ubuntu 14.04 vagrant box for libvirt or kvm, you can prob
 https://github.com/sciurus/vagrant-mutate
 ```
 
-Here's how to mutate the "ubuntu/trusty64" standard box. Download the Vagrant installer deb package: (here)[https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb].
+Here's how to mutate the "ubuntu/trusty64" standard box. Download the Vagrant installer deb package: [here](https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb).
 ```
 dpkg -i vagrant_1.8.1_x86_64.deb
 ```
@@ -53,7 +53,7 @@ vagrant plugin install vagrant-libvirt
 ```
 
 ###Notice in case vagrant-libvirt installation fails:
-For some reason, the vagrant-libvirt installation complained again, and I read a Git issue which solved the installation problem by reinstalling the Fog library Vagrant plugin with a specific version - fog-libvirt (https://github.com/fog/fog-libvirt)[https://github.com/fog/fog-libvirt] I need to update this doc with the source.
+For some reason, the vagrant-libvirt installation complained again, and I read a Git issue which solved the installation problem by reinstalling the Fog library Vagrant plugin with a specific version - fog-libvirt [https://github.com/fog/fog-libvirt](https://github.com/fog/fog-libvirt) I need to update this doc with the source.
 
 ```
 vagrant plugin install --plugin-version 0.0.3 fog-libvirt
@@ -406,7 +406,7 @@ Todo:
 =====
 
 * Convert Go install to idempotent role
-* Integrate a Docker Registry LDAP Role (https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb)[https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb]
+* Integrate a Docker Registry LDAP Role [https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb](https://github.com/chrisjalinsky/vagrant-consul-nomad-xtradb)
 * Add Docker Nomad Jobs
 * Add Nomad Exec and Raw Exec Jobs
 * Add Rkt Nomad Jobs
