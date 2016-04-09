@@ -36,7 +36,7 @@ If you have a trusty64 Ubuntu 14.04 vagrant box for libvirt or kvm, you can prob
 https://github.com/sciurus/vagrant-mutate
 ```
 
-Here's how to mutate the "ubuntu/trusty64" standard box. Download the Vagrant installer deb package.
+Here's how to mutate the "ubuntu/trusty64" standard box. Download the Vagrant installer deb package: (here)[https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb].
 ```
 dpkg -i vagrant_1.8.1_x86_64.deb
 ```
@@ -46,10 +46,22 @@ It turns out at the time, I didn't have the libvirt-dev package installed on the
 apt-get -y install libvirt-dev # I Didn't have this package
 vagrant plugin install vagrant-libvirt
 ```
+
 Now the installation works with the libvirt-dev package in place.
 ```
 vagrant plugin install vagrant-libvirt
 ```
+
+###Notice in case vagrant-libvirt installation fails:
+For some reason, the vagrant-libvirt installation complained again, and I read a Git issue which solved the installation problem by reinstalling the Fog library Vagrant plugin with a specific version - fog-libvirt (https://github.com/fog/fog-libvirt)[https://github.com/fog/fog-libvirt] I need to update this doc with the source.
+
+```
+vagrant plugin install --plugin-version 0.0.3 fog-libvirt
+```
+
+Vagrant Mutate Box
+------------------
+
 I needed a vagrant box, so I downloaded and named it "trusty64":
 ```
 vagrant box add trusty64 https://vagrantcloud.com/ubuntu/boxes/trusty64/versions/14.04/providers/virtualbox.box
@@ -58,12 +70,6 @@ vagrant box add trusty64 https://vagrantcloud.com/ubuntu/boxes/trusty64/versions
 And then mutated trusty64 for libvirt:
 ```
 vagrant mutate trusty64 libvirt
-```
-
-For some reason, the vagrant-libvirt installation complained, and I read a Git issue which solved the installation problem by reinstalling the Fog library Vagrant plugin with a specific version - fog-libvirt (https://github.com/fog/fog-libvirt)[https://github.com/fog/fog-libvirt] I need to update this doc with the source.
-
-```
-vagrant plugin install --plugin-version 0.0.3 fog-libvirt
 ```
 
 I quickly checked the qemu user existed and the libvirt connection with these commands:
@@ -75,33 +81,8 @@ virsh -c qemu:///system list
 virsh list --all
 ```
 
-
-Vagrant
--------
-
-The Vagrantfile has been made to be scalable to a certain degree. In theory, just adjusting the NUM_XXX will be enough to create as many VMs as the IP generation would allow in the Vagrantfile...so dozens at the moment. Currently, it's setup with 3 consul servers and 3 consul clients, as described in Ansible terms below.
-
-```
-consul[1:3].cluster
-client[1:3].cluster
-```
-
-
-Getting started:
-================
-
-Ensure that you have the above dependencies satisfied.
-Spin up the 6 node cluster, in two steps to prevent a race condition between the guest network interfaces and ansible ssh
-```
-vagrant up --no-provision
-vagrant provision
-```
-
-The ```vagrant up --no-provision``` command will create 6 nodes. The ```vagrant provision``` will run the Ansible playbook. See details below.
-
-
 Ansible
-=======
+-------
 
 I used the standard Ansible installation method, and I'm using defaults. I didn't create an ansible.cfg to place ssh key locations or inventory dirs. I'm using the playbook dir as the base path.
 
@@ -119,6 +100,30 @@ apt-get update
 apt-get install ansible
 ansible --version
 ```
+
+
+Vagrantfile
+-----------
+
+The Vagrantfile has been made to be scalable to a certain degree. In theory, just adjusting the NUM_XXX will be enough to create as many VMs as the IP generation would allow in the Vagrantfile...so dozens at the moment. Currently, it's setup with 3 consul servers and 3 consul clients, as described in Ansible terms below.
+
+```
+consul[1:3].cluster
+client[1:3].cluster
+```
+
+
+Getting Started:
+================
+
+Ensure that you have the above dependencies satisfied.
+Spin up the 6 node cluster, in two steps to prevent a race condition between the guest network interfaces and ansible ssh
+```
+vagrant up --no-provision
+vagrant provision
+```
+
+The ```vagrant up --no-provision``` command will create 6 nodes. The ```vagrant provision``` will run the Ansible playbook. See details below.
 
 Ansible Playbook
 ================
@@ -148,7 +153,6 @@ On servers:
 Manual Consul Agent Reference
 -----------------------------
 
-Reference:
 If running the commands manually, you can bootstrap a cluster like so (with the Consul UI available on each host):
 
 On each node run it's respective consul agent command
