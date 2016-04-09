@@ -48,7 +48,7 @@ vagrant plugin install vagrant-libvirt
 ```
 Now the installation works with the libvirt-dev package in place.
 ```
-vagrant plugin install vagrant-mutate
+vagrant plugin install vagrant-libvirt
 ```
 I needed a vagrant box, so I downloaded and named it "trusty64":
 ```
